@@ -1,14 +1,17 @@
 {
-  "name": "irons",
+  "name": "derby-irons",
   "version": "0.0.0",
   "description": "Intelligent authorization for Derby",
-  "main": "lib/index",
+  "main": "./lib",
+  "directories": {
+    "lib": "./lib"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/partial/irons.git"
+    "url": "git://github.com/partial/derby-irons.git"
   },
   "author": "Alexander Wenzowski",
   "keywords": [
@@ -22,6 +25,13 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/partial/irons/issues"
+    "url": "https://github.com/partial/derby-irons/issues"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3"
+  },
+  "dependencies": {
+    "lazy.js": "~0.1.0",
+    "validator": "~1.5.0"
   }
 }
