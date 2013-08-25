@@ -1,0 +1,27 @@
+{
+  "name": "irons",
+  "version": "0.0.0",
+  "description": "Intelligent authorization for Derby",
+  "main": "lib/index",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/partial/irons.git"
+  },
+  "author": "Alexander Wenzowski",
+  "keywords": [
+    "auth",
+    "oauth",
+    "password",
+    "authorization",
+    "authentication",
+    "derby",
+    "passport"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/partial/irons/issues"
+  }
+}
