@@ -1,4 +1,3 @@
-passport    = require('passport')
 express     = require('express')
 expressApp  = express()
 
@@ -7,6 +6,8 @@ module.exports = (options, model) ->
   if options
     config.load(options)
     config.validate()
+
+  passport = require('./passport')(config)
 
   expressApp
     # Parse form data
@@ -23,13 +24,15 @@ module.exports = (options, model) ->
     # Make Irons token available to Derby
     .use( require('./middleware/publishId')() )
 
-    # Make the scoped Irons models available at req.irons
-    .use( require('./middleware/model')() )
+    # Make the scoped models available at req.irons
+    .use( require('./middleware/ironsModel')() )
 
     .use( require('./middleware/passportSerializers')() )
     .use( passport.initialize() )
     .use( passport.session() )
 
     # Allow email-based registrations
-    .post( '/register', require('./controllers/acceptRegistration')(options) )
+    .post( '/register', require('./controllers/acceptRegistration')(config) )
+    .post( '/login', passport.authenticate('local', config.get 'passport') )
+    .get( '/logout', (req, res) -> req.logout(); res.redirect('/') )
 

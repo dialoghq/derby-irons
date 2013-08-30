@@ -72,11 +72,9 @@ module.exports = function(app, options) {
     }
     var xhr = model.get(path + '.xhr');
     if (xhr) {
-      xhr.abort();
       model.del(path + '.xhr');
-      if (model.toast) {
-        return model.toast('warning', 'Action cancelled.');
-      }
+      if (model.toast) { model.toast('warning', 'Action cancelled.'); }
+      xhr.abort();
     } else {
       xhr = new XMLHttpRequest();
       model.set(path + '.xhr', xhr);

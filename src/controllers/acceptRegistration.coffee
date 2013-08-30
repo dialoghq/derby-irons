@@ -33,11 +33,9 @@ module.exports = (options) ->
       return res.send(403, 'Must be logged out to register.')
 
     [username, password, nonce] = fetchForm('username', 'password', 'nonce', req, res)
+    return next unless username and password and nonce
 
-    model = req.getModel()
-    session = req.irons.getSession()
-    userQuery = model.query('irons_users', {emails: username, $limit: 1})
-    model.fetch session, userQuery, (err) ->
+    req.irons.fetchSession (err, session) ->
       return next(err) if err
 
       # perform validation
@@ -47,30 +45,20 @@ module.exports = (options) ->
       unless valid(form, registrationSchema)
         return res.send 422, 'Please fix the errors and try again.'
 
-      if existingUser = userQuery.get()?[0]
-        # handle pre-existing registration
-        credential.verify existingUser.password, password, (err, isValid) ->
-          return next(err) if err
-          if isValid
-            req.login existingUser, (err) ->
-              return next(err) if err
-              res.send 'Logged in! (Already registered.)'
-          else
-            res.send 401, 'Already registered. Please check your email to continue.'
-      else
-        # perform registration
-        credential.hash password, (err, hash) ->
-          return next(err) if err
-          userId = model.id()
-          user = model.at("irons_users.#{userId}")
-          user.fetch (err) ->
-            return next(err) if err
-            user.set
-              sessionIds: [req.session.id]
-              emails:     [username]
-              password:   hash
-            , (err) ->
-              return next(err) if err
+      req.irons.fetchUserByEmail username, (err, user) ->
+        return next(err) if err
+        if user # handle pre-existing registration
+          req.irons.checkPassword user, password, (err, isValid) ->
+            if isValid
               req.login user, (err) ->
-                res.send 'Registered!'
+                return next(err) if err
+                res.send 'Logged in! (Already registered)'
+            else
+              res.send 401, 'Already registered. Please check your email to continue.'
+        else # perform registration
+          req.irons.registerLocal username, password, (err, user) ->
+            return next(err) if err
+            req.login user, (err) ->
+              return next(err) if err
+              res.send 'Registered!'
 
