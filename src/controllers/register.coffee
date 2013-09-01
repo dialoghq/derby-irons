@@ -20,9 +20,9 @@ fetchForm = (args..., req, res) ->
   ).toArray()
 
 module.exports = (options) ->
-  acceptRegistration = (req, res, next) ->
+  register = (req, res, next) ->
     unless req.irons?.getSession? and typeof req.irons.getSession is typeof Function
-      throw new Error('use ironsModel() before acceptRegistration()')
+      throw new Error('use ironsModel() before register()')
 
     # Require cookies
     unless req.headers?.cookie?
@@ -47,7 +47,7 @@ module.exports = (options) ->
 
       req.irons.fetchUserByEmail username, (err, user) ->
         return next(err) if err
-        if user # handle pre-existing registration
+        if user? # handle pre-existing registration
           req.irons.checkPassword user, password, (err, isValid) ->
             if isValid
               req.login user, (err) ->

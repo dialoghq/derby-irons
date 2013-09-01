@@ -32,7 +32,7 @@ module.exports = function(app, options) {
       form = session.at('forms.login');
       form.set('nonce', model.id());
       model.ref('_page.irons.forms.login', form);
-      page.render('register');
+      page.render('login');
     });
   });
 
@@ -63,35 +63,35 @@ module.exports = function(app, options) {
   });
 
   app.fn('irons.submit', function(e, el) {
+    if (!el || !el.id) { return false; }
     var model = app.model;
-    var form = model.at(el); if (!form) { return false; }
-    var path = model.at(el).path();
-    if ( !valid(form, schema) ) {
+    var form = model.at(el);
+    var path = form.path();
+    var validate = path.match(/irons\.forms\.(register|login)/);
+    if ( validate && !valid(form, schema) ) {
       if (model.toast) { model.toast('error', 'Please fix the errors and try again.'); }
       return false;
     }
-    var xhr = model.get(path + '.xhr');
+    var xhr = model.get('_irons.xhr.' + el.id);
     if (xhr) {
-      model.del(path + '.xhr');
+      model.del('_irons.xhr.' + el.id);
       if (model.toast) { model.toast('warning', 'Action cancelled.'); }
-      xhr.abort();
+      // xhr.abort(); TODO figure out how to actually do this
     } else {
       xhr = new XMLHttpRequest();
-      model.set(path + '.xhr', xhr);
+      model.set('_irons.xhr.' + el.id, xhr);
       xhr.open(el.method, el.action, true);
       xhr.onreadystatechange = function() {
         if (this.readyState === 4) {
           var type = 'error';
           if (this.status === 200) { type = 'success'; }
           if (model.toast) { model.toast(type, this.responseText); }
-          model.del(path + '.xhr');
+          model.del('_irons.xhr.' + el.id);
         }
       };
       xhr.ontimeout = function(e) {
-        model.del(path + '.xhr');
-        if (model.toast) {
-          return model.toast('error', 'Action timed out.');
-        }
+        if (model.toast) { return model.toast('error', 'Action timed out.'); }
+        model.del('_irons.xhr.' + el.id);
       };
       return xhr.send(new FormData(el));
     }

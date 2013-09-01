@@ -20,13 +20,14 @@ module.exports = (options) ->
           model.unfetch session
 
       getUser: (id) ->
-        id ||= model.id()
         model.at("irons_users.#{id}")
 
       fetchUser: (id, done) ->
+        id ||= model.id()
         user = req.irons.getUser(id)
         model.fetch user, (err) ->
-          unless err
+          unless err?
+            user.setNull('id', id)
             user.setNull('sessions', [])
             user.setNull('emails', [])
           done(err, user)
@@ -37,10 +38,12 @@ module.exports = (options) ->
           emails: email.toLowerCase()
           $limit: 1
         model.fetch users, (err) ->
-          unless id = users?.fetchIds?[0]?[0]
-            return done(new Error 'User does not exist')
-          req.irons.fetchUser id, (err, user) ->
-            done(err, user)
+          id = users?.fetchIds?[0]?[0]
+          if id?
+            req.irons.fetchUser id, (err, user) ->
+              done(err, user)
+          else
+            done()
           model.unfetch users
 
       setPassword: (user, password, done) ->

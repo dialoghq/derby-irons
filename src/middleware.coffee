@@ -21,8 +21,8 @@ module.exports = (options, model) ->
       secret: config.get('session.secret')
     )
 
-    # Make Irons token available to Derby
-    .use( require('./middleware/publishId')() )
+    # Generate a Derby-compatible id for the session
+    .use( require('./middleware/sessionId')() )
 
     # Make the scoped models available at req.irons
     .use( require('./middleware/ironsModel')() )
@@ -31,8 +31,11 @@ module.exports = (options, model) ->
     .use( passport.initialize() )
     .use( passport.session() )
 
+    # Make sessionId and userId available to Derby
+    .use( require('./middleware/publishIds')() )
+
     # Allow email-based registrations
-    .post( '/register', require('./controllers/acceptRegistration')(config) )
-    .post( '/login', passport.authenticate('local', config.get 'passport') )
-    .get( '/logout', (req, res) -> req.logout(); res.redirect('/') )
+    .post( '/register', require('./controllers/register')(config) )
+    .post( '/login', require('./controllers/login')(config) )
+    .post( '/logout', require('./controllers/logout')(config) )
 

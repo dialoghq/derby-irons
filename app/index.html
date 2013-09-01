@@ -18,7 +18,39 @@
         <span class="help-block">{.password.errors}</span>
         <span class="tip-block">{#if .password.focused}Choose a password that's at least six characters.{/}</span>
       </div>
-      <input type="hidden" name="nonce" value="{.nonce}">
+      <input type="hidden" name="nonce" value="{{.nonce}}">
       <button type="submit" class="btn btn-primary">{#if .xhr}Registering...{else}Create My Account{/}</button>
     </form>
   {/}
+
+<login:>
+  {#if _irons.userId}
+    <form id="logout" action="/logout" method="post" x-bind="submit: irons.submit" novalidate>
+      <input type="hidden" name="logout" value="logout">
+      <button type="submit" class="btn btn-primary">{#if _irons.xhr.logout}Loging out...{else}Log Out{/}</button>
+    </form>
+  {/}
+  {#with _page.irons.forms.login}
+    <form id="login" action="/login" method="post" x-bind="submit: irons.submit" novalidate>
+      <div class="form-group {#if .username.errors}has-error{/}">
+        <label for="username">Email</label>
+        <input type="email" id="username" name="username" class="form-control input-lg" value="{.username.input}" x-bind="focus: irons.focus, blur: irons.blur">
+        <span class="help-block">{.username.errors}</span>
+        <span class="tip-block">{#if .username.focused}What's your email address?{/}</span>
+      </div>
+      <div class="form-group {#if .password.errors}has-error{/}">
+        <label for="password">Password</label>
+        <div class="input-group">
+          <input type="{#if .password.revealed}text{else}password{/}" id="password" name="password" class="form-control input-lg" value="{.password.input}" x-bind="focus: irons.focus, blur: irons.blur">
+          <label class="input-group-addon">
+            <input type="checkbox" id="password" x-bind="click: irons.reveal"> show
+          </label>
+        </div>
+        <span class="help-block">{.password.errors}</span>
+        <span class="tip-block">{#if .password.focused}Choose a password that's at least six characters.{/}</span>
+      </div>
+      <input type="hidden" name="nonce" value="{{.nonce}}">
+      <button type="submit" class="btn btn-primary">{#if _irons.xhr.login}Loging in...{else}Log In{/}</button>
+    </form>
+  {/}
+
