@@ -70,7 +70,7 @@ module.exports = (options) ->
       sessionAttach: sessionAttach = (user) ->
         pushOnce(user, 'sessions', req.session.id)
 
-      register: register= (email, password, done) ->
+      register: register = (email, password, done) ->
         newUser email, (err, id) ->
           return done(err) if err
           fetchUser id, (err, user) ->

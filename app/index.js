@@ -18,7 +18,6 @@ module.exports = function(app, options) {
     model.subscribe(session, function(err){
       if (err) { return next(err); }
       form = session.at('forms.register');
-      form.set('nonce', model.id());
       model.ref('_page.irons.forms.register', form);
       page.render('register');
     });
@@ -30,7 +29,6 @@ module.exports = function(app, options) {
     model.subscribe(session, function(err){
       if (err) { return next(err); }
       form = session.at('forms.login');
-      form.set('nonce', model.id());
       model.ref('_page.irons.forms.login', form);
       page.render('login');
     });

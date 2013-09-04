@@ -2,18 +2,6 @@ check   = require('validator').check
 defaults = require('convict')(
 
   passport:
-    # successRedirect:
-    #   doc: 'Where a user should be redirected on auth success'
-    #   default: '/'
-    #   env: 'PASSPORT_SUCCESS_REDIRECT'
-    # failureRedirect:
-    #   doc: 'Where a user should be redirected on auth failure'
-    #   default: '/login'
-    #   env: 'PASSPORT_FAILURE_REDIRECT'
-    # registrationRedirect:
-    #   doc: 'Where a user should be redirected on registration failure'
-    #   default: '/register'
-    #   env: 'PASSPORT_REGISTRATION_REDIRECT'
     usernameField:
       doc: 'Name of form field to be used as username for authentication'
       default: 'username'
@@ -22,14 +10,6 @@ defaults = require('convict')(
       doc: 'Name of form field to be used as password for authentication'
       default: 'password'
       env: 'PASSPORT_PASSWORD_FIELD'
-    # nonceField:
-    #   doc: 'Name of form field to be used for nonce check during authentication'
-    #   default: 'nonce'
-    #   env: 'PASSPORT_NONCE_FIELD'
-    # enableNonce:
-    #   doc: 'Test nonce provided by client to prevent double-submission'
-    #   default: true
-    #   env: 'PASSPORT_ENABLE_NONCE'
     failureFlash:
       doc: 'Alerts are set using Racer so flash messages should be disabled'
       default: false

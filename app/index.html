@@ -18,7 +18,6 @@
         <span class="help-block">{.password.errors}</span>
         <span class="tip-block">{#if .password.focused}Choose a password that's at least six characters.{/}</span>
       </div>
-      <input type="hidden" name="nonce" value="{{.nonce}}">
       <button type="submit" class="btn btn-primary">{#if _irons.xhr.register}Registering...{else}Create My Account{/}</button>
     </form>
   {/}
@@ -43,7 +42,6 @@
         <span class="help-block">{.password.errors}</span>
         <span class="tip-block">{#if .password.focused}Choose a password that's at least six characters.{/}</span>
       </div>
-      <input type="hidden" name="nonce" value="{{.nonce}}">
       <button type="submit" class="btn btn-primary">{#if _irons.xhr.login}Loging in...{else}Log In{/}</button>
     </form>
   {/}

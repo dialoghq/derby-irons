@@ -46,8 +46,8 @@ module.exports = (options) ->
           type: 'error'
           msg: 'Cookies are required to register.'
 
-    [username, password, nonce] = fetchForm('username', 'password', 'nonce', req, res)
-    return next unless username and password and nonce
+    [username, password] = fetchForm('username', 'password', req, res)
+    return next unless username and password
 
     req.irons.fetchSession (err, session) ->
       return next(err) if err
