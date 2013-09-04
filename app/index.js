@@ -37,21 +37,21 @@ module.exports = function(app, options) {
   app.fn('irons.focus', function(e, el) {
     if (!el.id || !app.model.at(el)) { return false; }
     var path = app.model.at(el).path();
-    app.model.set(path + "." + el.id + ".focused", true);
+    app.model.set("_page.irons.tips." + el.id, true);
     return true;
   });
 
   app.fn('irons.blur', function(e, el) {
     if (!el.id || !app.model.at(el)) { return false; }
     var path = app.model.at(el).path();
-    app.model.del(path + "." + el.id + ".focused");
+    app.model.del("_page.irons.tips." + el.id);
     return true;
   });
 
   app.fn('irons.reveal', function(e, el) {
     if (!el.id || !app.model.at(el)) { return false; }
     var path = app.model.at(el).path();
-    var reveal = path + "." + el.id + ".revealed";
+    var reveal = "_page.irons.reveals." + el.id;
     if (el.checked === true) {
       app.model.set(reveal, true);
     } else {
@@ -70,14 +70,14 @@ module.exports = function(app, options) {
       if (model.toast) { model.toast('error', 'Please fix the errors and try again.'); }
       return false;
     }
-    var xhr = model.get('_irons.xhr.' + el.id);
+    var xhr = model.get('_page.irons.xhr.' + el.id);
     if (xhr) {
-      model.del('_irons.xhr.' + el.id);
+      model.del('_page.irons.xhr.' + el.id);
       if (model.toast) { model.toast('warning', 'Action cancelled.'); }
       // xhr.abort(); TODO figure out how to actually do this
     } else {
       xhr = new XMLHttpRequest();
-      model.set('_irons.xhr.' + el.id, xhr);
+      model.set('_page.irons.xhr.' + el.id, xhr);
       xhr.open(el.method, el.action, true);
       xhr.onreadystatechange = function() {
         if (this.readyState === 4) {
@@ -95,12 +95,12 @@ module.exports = function(app, options) {
             console.log(this.responseText);
             if (model.toast) { model.toast('error', 'Could not parse response.'); }
           }
-          model.del('_irons.xhr.' + el.id);
+          model.del('_page.irons.xhr.' + el.id);
         }
       };
       xhr.ontimeout = function(e) {
         if (model.toast) { return model.toast('error', 'Action timed out.'); }
-        model.del('_irons.xhr.' + el.id);
+        model.del('_page.irons.xhr.' + el.id);
       };
       return xhr.send(new FormData(el));
     }
