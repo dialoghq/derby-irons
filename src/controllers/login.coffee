@@ -8,6 +8,10 @@ module.exports = (options) ->
       return res.send 401, 'Authentication failure, please try again.' unless user
       req.login user, (err) ->
         return next(err) if err
-        res.send 200, 'Logged in.'
+        res.send 200, JSON.stringify
+          userId: user.get('id')
+          toast:
+            type: 'success'
+            msg: 'Logged in.'
     )(req, res, next)
 

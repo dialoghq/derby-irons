@@ -83,9 +83,20 @@ module.exports = function(app, options) {
       xhr.open(el.method, el.action, true);
       xhr.onreadystatechange = function() {
         if (this.readyState === 4) {
-          var type = 'error';
-          if (this.status === 200) { type = 'success'; }
-          if (model.toast) { model.toast(type, this.responseText); }
+          try {
+            var res = JSON.parse(this.responseText);
+            if (res && res.userId !== undefined) {
+              if (res.userId === false) {
+                model.del('_irons.userId');
+              } else {
+                model.set('_irons.userId', res.userId);
+              }
+            }
+            if (model.toast && res && res.toast) { model.toast(res.toast.type, res.toast.msg); }
+          } catch (err) {
+            console.log(this.responseText);
+            if (model.toast) { model.toast('error', 'Could not parse response.'); }
+          }
           model.del('_irons.xhr.' + el.id);
         }
       };

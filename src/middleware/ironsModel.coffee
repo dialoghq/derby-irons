@@ -1,4 +1,9 @@
+Lazy = require('lazy.js')
 credential  = require('credential')
+
+pushOnce = (doc, field, val) ->
+  unless doc?.get? and Lazy(doc.get field).any((v) -> v is val)
+    doc.push(field, val)
 
 module.exports = (options) ->
   ironsModel = (req, res, next) ->
@@ -10,60 +15,65 @@ module.exports = (options) ->
     model = req.getModel()
 
     req.irons =
-      getSession: () ->
+      getSession: getSession = () ->
         model.at('irons_sessions.' + req.session.id)
 
-      fetchSession: (done) ->
-        session = req.irons.getSession()
+      fetchSession: fetchSession = (done) ->
+        session = getSession()
         model.fetch session, (err) ->
           done(err, session)
           model.unfetch session
 
-      getUser: (id) ->
+      getUser: getUser = (id) ->
         model.at("irons_users.#{id}")
 
-      fetchUser: (id, done) ->
-        id ||= model.id()
-        user = req.irons.getUser(id)
+      newUser: newUser = () ->
+        id = model.id()
+        model.add 'irons_users',
+          id: id
+          sessions: [req.session.id]
+          emails: []
+
+      fetchUser: fetchUser = (id, done) ->
+        user = getUser((id || newUser()))
         model.fetch user, (err) ->
-          unless err?
-            user.setNull('id', id)
-            user.setNull('sessions', [])
-            user.setNull('emails', [])
           done(err, user)
           model.unfetch user
 
-      fetchUserByEmail: (email, done) ->
+      fetchUserByEmail: fetchUserByEmail = (email, done) ->
         users = model.query 'irons_users',
           emails: email.toLowerCase()
           $limit: 1
         model.fetch users, (err) ->
           id = users?.fetchIds?[0]?[0]
           if id?
-            req.irons.fetchUser id, (err, user) ->
+            fetchUser id, (err, user) ->
               done(err, user)
           else
             done()
           model.unfetch users
 
-      setPassword: (user, password, done) ->
+      setPassword: setPassword = (user, password, done) ->
         credential.hash password, (err, hash) ->
           return done(err) if err
           user.set('password', hash)
           done(null, user)
 
-      checkPassword: (user, password, done) ->
+      checkPassword: checkPassword = (user, password, done) ->
         unless user?.password or user?.get('password')
           return done(new Error 'No password set for this user.')
         credential.verify (user.password || user.get 'password'), password, (err, isValid) ->
           done(err, isValid)
 
-      registerLocal: (email, password, done) ->
-        req.irons.fetchUser null, (err, user) ->
+      sessionAttach: sessionAttach = (user) ->
+        pushOnce(user, 'sessions', req.session.id)
+
+      registerLocal: registerLocal = (email, password, done) ->
+        fetchUser null, (err, user) ->
           return done(err) if err
-          user.push('sessions', req.session.id)
-          user.push('emails', email.toLowerCase())
-          req.irons.setPassword user, password, (err, user) ->
+          sessionAttach(user)
+          pushOnce(user, 'emails', email)
+          setPassword user, password, (err, user) ->
             done(err, user)
 
     next()

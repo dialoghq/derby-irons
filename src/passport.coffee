@@ -8,7 +8,7 @@ module.exports = (config) ->
       return done(new Error 'User does not exist') unless user
       req.irons.checkPassword user, password, (err, isValid) ->
         if isValid
-          user.push('sessions', req.session.id) if user
+          req.irons.sessionAttach(user)
           done(err, user)
         else
           done(err, false)
