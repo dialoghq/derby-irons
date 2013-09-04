@@ -27,15 +27,17 @@ module.exports = (options) ->
       getUser: getUser = (id) ->
         model.at("irons_users.#{id}")
 
-      newUser: newUser = () ->
+      newUser: newUser = (email, done) ->
         id = model.id()
         model.add 'irons_users',
           id: id
           sessions: [req.session.id]
-          emails: []
+          emails: [email]
+          , (err) ->
+            done(err, id)
 
       fetchUser: fetchUser = (id, done) ->
-        user = getUser((id || newUser()))
+        user = getUser(id)
         model.fetch user, (err) ->
           done(err, user)
           model.unfetch user
@@ -68,13 +70,13 @@ module.exports = (options) ->
       sessionAttach: sessionAttach = (user) ->
         pushOnce(user, 'sessions', req.session.id)
 
-      registerLocal: registerLocal = (email, password, done) ->
-        fetchUser null, (err, user) ->
+      register: register= (email, password, done) ->
+        newUser email, (err, id) ->
           return done(err) if err
-          sessionAttach(user)
-          pushOnce(user, 'emails', email)
-          setPassword user, password, (err, user) ->
-            done(err, user)
+          fetchUser id, (err, user) ->
+            return done(err) if err
+            setPassword user, password, (err, user) ->
+              done(err, user)
 
     next()
 

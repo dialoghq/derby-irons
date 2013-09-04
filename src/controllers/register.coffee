@@ -83,7 +83,7 @@ module.exports = (options) ->
                   type: 'error'
                   msg: 'Already registered. Please check your email to continue.'
         else # perform registration
-          req.irons.registerLocal username, password, (err, user) ->
+          req.irons.register username, password, (err, user) ->
             return next(err) if err
             req.login user, (err) ->
               return next(err) if err
